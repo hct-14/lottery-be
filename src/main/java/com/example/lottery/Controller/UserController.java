@@ -1,5 +1,6 @@
 package com.example.lottery.Controller;
 
+import com.example.lottery.DAO.ResCreateUserDTO;
 import com.example.lottery.DAO.ResultPaginationDTO;
 import com.example.lottery.Entity.User;
 import com.example.lottery.Service.UserService;
@@ -16,48 +17,42 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
-@RestController("/user")
+@RestController
+@RequestMapping("/api/v1/user")
 public class UserController {
     private final UserService userService;
     public UserController(UserService userService) {
         this.userService = userService;
     }
-
     @PostMapping("/create")
     @ApiMessage("create success")
-    public ResponseEntity<User> createUser(@RequestParam User user, String email)throws IdInvaldException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.createUser(user, email));
+    public ResponseEntity<ResCreateUserDTO> createUser(@RequestBody User user)throws IdInvaldException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.converToResUserDTO(this.userService.createUser(user)));
     }
-
     @GetMapping("/search-by-email")
-    public ResponseEntity<?> searchUserByEmail(@RequestParam("email") String email) {
-        try {
-            Optional<User> userOptional = userService.searchUserByEmail(email);
-            if (userOptional.isPresent()) {
-                return ResponseEntity.ok(userOptional.get());
-            } else {
-                return ResponseEntity.status(404).body("User not found");
-            }
-        } catch (IdInvaldException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
-        }
+    public ResponseEntity<ResCreateUserDTO> searchUserByEmail(@RequestParam String email) throws IdInvaldException {
+       User userEmail = this.userService.searchUserByEmail(email);
+
+       return ResponseEntity.status(HttpStatus.OK).body(this.userService.converToResUserDTO(userEmail));
     }
-    @GetMapping("search-by-id")
-    public ResponseEntity<User> searchUserById(@RequestParam long id) throws IdInvaldException {
+    @GetMapping("search-by-id/{id}")
+    public ResponseEntity<ResCreateUserDTO> searchUserById(@PathVariable long id) throws IdInvaldException {
         Optional usercheck = this.userService.searchUser(id);
         if (!usercheck.isPresent()) {
             throw new IdInvaldException("User not found");
         }
-        return ResponseEntity.status(HttpStatus.OK).body(this.userService.searchUser(id).get());
+        User userSearch = this.userService.searchUser(id).get();
+        return ResponseEntity.status(HttpStatus.OK).body(this.userService.converToResUserDTO(userSearch));
     }
     @PutMapping("update")
     @ApiMessage("update success")
-    public ResponseEntity<User> updateUser(@RequestParam @RequestBody @Valid User user) throws IdInvaldException {
+    public ResponseEntity<ResCreateUserDTO> updateUser(@RequestBody @Valid User user) throws IdInvaldException {
         Optional<User> usercheck = this.userService.searchUser(user.getId());
         if (!usercheck.isPresent()) {
             throw new IdInvaldException("User not found");
         }
-        return ResponseEntity.status(HttpStatus.OK).body(this.userService.updateUser(user, usercheck.get()));
+        User updateUser = this.userService.updateUser(user, usercheck.get());
+        return ResponseEntity.status(HttpStatus.OK).body(this.userService.converToResUserDTO(updateUser));
     }
     @DeleteMapping("delete/{id}")
     @ApiMessage("delete success")
@@ -69,7 +64,7 @@ public class UserController {
         this.userService.deleteUser(id);
         return ResponseEntity.status(HttpStatus.OK).body("Delete success");
     }
-    @GetMapping("get-all-user")
+    @GetMapping("get-all")
     @ApiMessage("get-all-success")
     public ResponseEntity<ResultPaginationDTO> getAllUser(@Filter Specification spec, Pageable pageable) throws IdInvaldException {
         return ResponseEntity.status(HttpStatus.OK).body(this.userService.getAllUsers(spec, pageable));

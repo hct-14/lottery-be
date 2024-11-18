@@ -25,10 +25,10 @@ public class Role {
     @NotBlank(message = "name này không được để trống đâu em")
     private String name;
     private String description;
-
     @ManyToMany(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = {"roles"})
     @JoinTable(name = "permission_role", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name ="permission_id"))
+    @JsonIgnore
     private List<Permission> permissions;
 
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)

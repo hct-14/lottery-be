@@ -34,9 +34,9 @@ public class RoleController {
 
 
     @GetMapping("roles/{id}")
-    @ApiMessage("get thành công")
-    public ResponseEntity<Role> getRole(@RequestParam Role role) throws IdInvaldException{
-        Optional<Role> roleOptional = this.roleService.findById(role.getId());
+    @ApiMessage("succsess")
+    public ResponseEntity<Role> getRole(@PathVariable int id) throws IdInvaldException{
+        Optional<Role> roleOptional = this.roleService.findById(id);
         if (!roleOptional.isPresent()){
             throw new IdInvaldException("không có thằng id này em ơi");
         }

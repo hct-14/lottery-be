@@ -47,33 +47,33 @@ public class SercurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
-        String[] whiteList ={
+        String[] whiteList = {
                 "/",
-                 "/api/v1/", "/api/v1/auth/login","/api/v1/auth/refresh","/storage/**",
-                 "/api/v1/auth/register",
-                 "/api/v1/email",
-                 "/lottery/**", "/api/v1/**"
+                "/api/v1/",
+                "/api/v1/auth/login",
+                "/api/v1/auth/refresh",
+                "/storage/**",
+                "/api/v1/auth/register",
+                "/api/v1/email",
+                "/lottery/**",
+                "/api/v1/**"
         };
         http.authorizeHttpRequests(configurer -> configurer
-                        .requestMatchers(whiteList).permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/v1/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/lottery/search").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers(whiteList).permitAll()  // Cho phép tất cả các đường dẫn trong whiteList không cần xác thực
+                        .requestMatchers(HttpMethod.GET,"/api/v1/**").permitAll()  // Cho phép các phương thức GET với đường dẫn /api/v1/** mà không cần xác thực
+                        .requestMatchers(HttpMethod.GET,"/lottery/search").permitAll()  // Cho phép tìm kiếm xổ số mà không cần xác thực
+                        .anyRequest().authenticated()  // Các yêu cầu còn lại phải được xác thực
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())
-                .authenticationEntryPoint(customAuthenticationEntryPoint)
-
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
-//                .exceptionHandling(
-//                        exceptions -> exceptions
-//                                .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()) //401
-//                                .accessDeniedHandler(new BearerTokenAccessDeniedHandler())) //403
-                .formLogin(f -> f.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        http.csrf(csrf -> csrf.disable());
+                .formLogin(f -> f.disable())  // Tắt form login
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));  // Sử dụng session stateless
+        http.csrf(csrf -> csrf.disable());  // Tắt CSRF
 
         return http.build();
     }
+
     //khi decode thành công
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {

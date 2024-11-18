@@ -24,13 +24,14 @@ public class User {
     private GenderEnum gender;
     private String email;
     private String password;
+    @Column(columnDefinition = "MEDIUMTEXT")
+
     private String refreshToken;
     private String address;
     private int age;
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "users")
     @JsonIgnore
     private List<History> history;
-
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;

@@ -23,9 +23,9 @@ public class ResLoginDTO {
         private long id;
         private String email;
         private String name;
+
         private Role role;
     }
-
     @Getter
     @Setter
     @AllArgsConstructor
@@ -33,7 +33,6 @@ public class ResLoginDTO {
     public static class UserGetAccount {
         private UserLogin user;
     }
-
     @Getter
     @Setter
     @AllArgsConstructor

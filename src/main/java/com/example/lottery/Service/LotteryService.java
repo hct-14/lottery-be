@@ -52,6 +52,7 @@ public class LotteryService {
         JsonNode rootNode = objectMapper.readTree(new FileReader(file));
         JsonNode issueList = rootNode.path("t").path("issueList");
         ArrayNode resultArray = objectMapper.createArrayNode();
+
         for (JsonNode issue : issueList) {
             String turnNum = issue.path("turnNum").asText();
             String detail = issue.path("detail").asText();
@@ -59,7 +60,18 @@ public class LotteryService {
 
             String[] prizes = detail.split(",");
             LotteryResult lotteryResult = new LotteryResult();
-            lotteryResult.setDate(LocalDate.parse(turnNum, DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            LocalDate lotteryDate = LocalDate.parse(turnNum, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+            // Kiểm tra xem kết quả xổ số đã tồn tại cho ngày này chưa
+            Optional<LotteryResult> existingResult = lotteryResultRepository.findByDate(lotteryDate);
+
+            if (existingResult.isPresent()) {
+                // Nếu kết quả đã tồn tại, bỏ qua và tiếp tục vòng lặp
+                continue;
+            }
+
+            // Nếu không tồn tại, tiến hành lưu kết quả mới vào DB
+            lotteryResult.setDate(lotteryDate);
             lotteryResult.setSpecial(Integer.parseInt(prizes[0])); // Giải đặc biệt
             lotteryResult.setPrize1(Integer.parseInt(prizes[1]));  // Giải nhất
             lotteryResult.setPrize2_1(Integer.parseInt(prizes[2])); // Giải nhì 1
@@ -87,11 +99,12 @@ public class LotteryService {
             lotteryResult.setPrize7_2(Integer.parseInt(prizes[24])); // Giải bảy 2
             lotteryResult.setPrize7_3(Integer.parseInt(prizes[25])); // Giải bảy 3
             lotteryResult.setPrize7_4(Integer.parseInt(prizes[26])); // Giải bảy 4
+
             // Lưu vào DB
             lotteryResultRepository.save(lotteryResult);
         }
-
     }
+
 
     public Optional<LotteryResult> findLotteryResultByDate(LocalDate date) {
         return lotteryResultRepository.findByDate(date);

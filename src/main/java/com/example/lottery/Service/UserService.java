@@ -28,8 +28,8 @@ public class UserService {
         return this.userReponsetory.save(user);
 
     }
-    public User createUser(User user,String email) throws IdInvaldException {
-        boolean emailCheck = this.userReponsetory.existsByEmail(email);
+    public User createUser(User user) throws IdInvaldException {
+        boolean emailCheck = this.userReponsetory.existsByEmail(user.getEmail());
         if (emailCheck) {
             throw new IdInvaldException("Email already exists");
         }
@@ -83,12 +83,12 @@ public class UserService {
         return this.userReponsetory.findById(id);
     }
 
-    public Optional<User> searchUserByEmail(String email) throws IdInvaldException {
-        User userOptional = this.userReponsetory.findByEmail(email);
-        if (userOptional==null) {
+    public User searchUserByEmail(String email) throws IdInvaldException {
+        User user = this.userReponsetory.findByEmail(email);
+        if (user == null) {
             throw new IdInvaldException("User with email not found");
         }
-        return this.userReponsetory.findById(userOptional.getId());
+        return user;
     }
 
 

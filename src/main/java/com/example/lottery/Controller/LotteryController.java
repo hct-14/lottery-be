@@ -53,7 +53,7 @@ public class LotteryController {
         Optional<LotteryResult> result = lotteryService.findLotteryResultByDate(date);
         return result.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
-    @GetMapping("/search/all")
+    @GetMapping("/get/all")
     public ResponseEntity<ResultPaginationDTO> getAllCompany(@Filter Specification<LotteryResult> spec, Pageable pageable) {
         return  ResponseEntity.status(HttpStatus.OK).body(this.lotteryService.getAllLottery(spec, pageable));
     }
